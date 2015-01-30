@@ -14,7 +14,7 @@ public class MainActivity extends ActionBarActivity {
 
     // expr = the current string to be calculated
     StringBuffer expr;
-
+    int mem = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,7 +27,10 @@ public class MainActivity extends ActionBarActivity {
         TextView tvExpr = (TextView)findViewById(R.id.tvExpr);
         tvExpr.setText(expr.toString());
     }
-
+    public void AnsDisplay(String s) {
+        TextView ansExpr = (TextView)findViewById(R.id.tvAns);
+        ansExpr.setText(s);
+    }
     public void recalculate() {
         //Calculate the expression and display the output
 
@@ -36,6 +39,90 @@ public class MainActivity extends ActionBarActivity {
         //reference: http://stackoverflow.com/questions/2206378/how-to-split-a-string-but-also-keep-the-delimiters
         String e = expr.toString();
         String[] tokens = e.split("((?<=\\+)|(?=\\+))|((?<=\\-)|(?=\\-))|((?<=\\*)|(?=\\*))|((?<=/)|(?=/))");
+
+        int result = 0;
+        String op = "";
+        if(tokens[0] != "") {
+            for (int i = 0; i < tokens.length; i++) {
+                if (tokens[i].equals("+") || tokens[i].equals("-") || tokens[i].equals("*") || tokens[i].equals("/")) {
+                    op = tokens[i];
+                } else {
+                    if (op.equals("+"))
+                        result += Integer.parseInt(tokens[i]);
+                    else if (op.equals("-"))
+                        result -= Integer.parseInt(tokens[i]);
+                    else if (op.equals("*"))
+                        result *= Integer.parseInt(tokens[i]);
+                    else if (op.equals("/"))
+                        result /= Integer.parseInt(tokens[i]);
+                    else if (op.equals(""))
+                        result = Integer.parseInt(tokens[i]);
+                }
+
+            }
+        }
+        else{
+            AnsDisplay("0");
+        }
+
+        /***
+        result = Integer.parseInt(tokens[0]);
+
+        for (int i=1;i<tokens.length-1;i++){
+            if(tokens[i].equals("+"))
+                  result += Integer.parseInt(tokens[i+1]);
+            else if(tokens[i].equals("-"))
+                result -= Integer.parseInt(tokens[i+1]);
+            else if(tokens[i].equals("*"))
+                result *= Integer.parseInt(tokens[i+1]);
+            else if(tokens[i].equals("/"))
+                result /= Integer.parseInt(tokens[i + 1]);
+
+        }
+        ***/
+
+        AnsDisplay(Integer.toString(result));
+    }
+
+    public void equalClicked(View v) {
+        expr = new StringBuffer();
+        TextView tvAns = (TextView)findViewById(R.id.tvAns);
+        String d = tvAns.getText().toString();
+        expr.append(d);
+        updateExprDisplay();
+        AnsDisplay("0");
+    }
+
+    public void maddClicked(View v) {
+        TextView tvAns = (TextView)findViewById(R.id.tvAns);
+        String d = tvAns.getText().toString();
+        mem += Integer.parseInt(d);
+        Toast t = Toast.makeText(this.getApplicationContext(),
+        mem + " has been added to memory.",Toast.LENGTH_SHORT);
+        t.show();
+    }
+
+    public void mminusClicked(View v) {
+        TextView tvAns = (TextView)findViewById(R.id.tvAns);
+        String d = tvAns.getText().toString();
+        mem -= Integer.parseInt(d);
+        Toast t = Toast.makeText(this.getApplicationContext(),
+        mem + " has been added to memory.",Toast.LENGTH_SHORT);
+        t.show();
+    }
+
+    public void mrClicked(View v){
+        expr = new StringBuffer();
+        expr.append(Integer.toString(mem));
+        updateExprDisplay();
+        AnsDisplay(Integer.toString(mem));
+    }
+
+    public void mcClicked(View v){
+        mem = 0;
+        Toast t = Toast.makeText(this.getApplicationContext(),
+        "Memory Cleared",Toast.LENGTH_SHORT);
+        t.show();
     }
 
     public void digitClicked(View v) {
@@ -51,8 +138,20 @@ public class MainActivity extends ActionBarActivity {
 
     public void operatorClicked(View v) {
         //IF the last character in expr is not an operator and expr is not "",
-        //THEN append the clicked operator and updateExprDisplay,
-        //ELSE do nothing
+        if(!isOperand(expr.charAt(expr.length()-1)) && (!expr.toString().isEmpty())) {
+            String d = ((TextView)v).getText().toString();
+            //append the clicked digit to expr
+            expr.append(d);
+            //update tvExpr
+            updateExprDisplay();
+        }
+        else{
+
+        }
+    }
+
+    public boolean isOperand(char c){
+        return c == '+' || c == '-' || c == '*' || c == '/';
     }
 
     public void ACClicked(View v) {
@@ -70,6 +169,7 @@ public class MainActivity extends ActionBarActivity {
         if (expr.length() > 0) {
             expr.deleteCharAt(expr.length()-1);
             updateExprDisplay();
+            recalculate();
         }
     }
 
